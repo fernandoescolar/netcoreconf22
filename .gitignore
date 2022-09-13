@@ -1,0 +1,6 @@
+.vscode
+bin
+obj
+*.db
+.DS_Store
+*.Artifacts

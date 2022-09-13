@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>netcoreconf2022</title>
+
+    <meta name="description" content="APIs con AspNet core 7">
+    <meta name="author" content="Fernando Escolar">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="dist/reset.css">
+    <link rel="stylesheet" href="dist/reveal.css">
+    <link rel="stylesheet" href="dist/theme/blood.css" id="theme">
+    <link rel="stylesheet" href="plugin/highlight/monokai.css">
+
+    <style>
+      :root {
+        --r-link-color: #9f4bb2;
+        --r-link-color-dark: #350141;
+        --r-link-color-hover: #632b70;
+        --r-selection-background-color: #632b70;
+      }
+      .reveal .code-wrapper code {
+        white-space: pre;
+        overflow: hidden;
+      }
+      .left {
+        text-align: left;
+      }
+      .accent {
+        color: #9f4bb2;
+      }
+      .reveal ul {
+        list-style-type: none;
+      }
+      .reveal pre {
+        font-size: 0.45em;
+      }
+      .multiCol {
+        display: table;
+        table-layout: fixed;
+        width: 100%;
+        text-align: left;
+      }
+      .multiCol .col {
+        display: table-cell;
+        vertical-align: top;
+        width: 50%;
+        padding: 2% 0 2% 3%;
+      }
+      .multiCol .col:first-of-type {
+        padding-left: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+      <div class="slides">
+        <section>
+
+            <img src="images/netcoreconf_template_2022.png" alt="sponsors">
+
+        </section>
+        <section>
+          <h2>About me</h2>
+          <p class="left">
+            <img src="images/fernandoescolar.png" style="border-radius: 15px; box-shadow: 2px 2px 5px" alt="Fernando Escolar" width="20%" align="right">
+            ❤️‍🔥 Estrella Galicia<br>
+            🖕 Verdura<br>
+            🎨 Naranja<br>
+            🎮 Metroid<br>
+            🧑‍💼 SCRM Lidl International Hub<br>
+            🌐 developerro.com
+          </p>
+        </section>
+        <section>
+          <h2>APIs con AspNet core 7</h2>
+          <p>
+            <img src="images/netcoreconf2022.png" alt="netcoreconf2022" width="20%">
+
+          </p>
+        </section>
+
+        <section>
+          <section>
+            <h2 class="r-fit-text">Intro</h2>
+          </section>
+          <section data-markdown>
+            <script type="text/template">
+              ## remember?
+
+              ```csharp[1-15|17|19-22|26-29|31-42]
+              public class Program
+              {
+                public static void Main(string[] args)
+                {
+                  CreateHostBuilder(args).Build().Run();
+                }
+
+                public static IHostBuilder
+                  CreateHostBuilder(string[] args) =>
+                      Host.CreateDefaultBuilder(args)
+                      .ConfigureWebHostDefaults(webBuilder =>
+                      {
+                        webBuilder.UseStartup<Startup>();
+                      });
+              }
+
+              public class Startup
+              {
+                public Startup(IConfigurationRoot configuration)
+                {
+                  Configuration = configuration;
+                }
+
+                public IConfigurationRoot Configuration { get; }
+
+                public void ConfigureServices(IServiceCollection services)
+                {
+                  services.AddControllers();
+                }
+
+                public void Configure(IApplicationBuilder app)
+                {
+                  if (env.IsDevelopment())
+                  {
+                    app.UseDeveloperExceptionPage();
+                  }
+
+                  app.UseHttpsRedirection();
+                  app.UseRouting();
+                  app.UseAuthorization();
+                  app.UseEndpoints(x => x.MapControllers());
+                }
+              }
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## asp.net core >= 6
+
+              ```csharp[2|4-8|7]
+
+              var builder = WebApplication.CreateBuilder(args);
+
+              var app = builder.Build();
+              app.UseHttpsRedirection();
+              app.UseAuthorization();
+              app.MapControllers();
+              app.Run();
+
+
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## Minimal API
+
+              ```csharp[6]
+
+              var builder = WebApplication.CreateBuilder(args);
+
+              var app = builder.Build();
+
+              app.MapGet("/", () => "Hello World!");
+
+              app.Run();
+
+
+              ```
+            </script>
+          </section>
+
+          <section>
+            <h2>Minimal API</h2>
+            <ul>
+              <li class="fragment">🔳 Minimalism</li>
+              <li class="fragment">📚 Easy to learn</li>
+              <li class="fragment">👨‍👩‍👧‍👦 Feels familiar</li>
+              <li class="fragment">🌳 Grows With You</li>
+              <li class="fragment">⚡️ Incredibly Fast</li>
+            </ul>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## Startup
+
+              ```bash
+              dotnet new webapi -minimal -o BeersApi
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## From Controllers
+
+              ```csharp[0|11-23]
+              [ApiController]
+              [Route("[controller]")]
+              public class WeatherForecastController : ControllerBase
+              {
+                private static readonly string[] Summaries = new[]
+                {
+                  "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm",
+                  "Balmy", "Hot", "Sweltering", "Scorching"
+                };
+
+                [HttpGet]
+                public IEnumerable<WeatherForecast> Get()
+                {
+                    return Enumerable.Range(1, 5)
+                                    .Select(index => new WeatherForecast
+                    {
+                      Date = DateTime.Now.AddDays(index),
+                      TemperatureC = Random.Shared.Next(-20, 55),
+                      Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+                    })
+                    .ToArray();
+                }
+              }
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              ## To Endpoints
+
+              ```csharp[0|6-15]
+              var summaries = new[]
+              {
+                "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+              };
+
+              app.MapGet("/weatherforecast", () =>
+              {
+                return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+                {
+                  Date = DateTime.Now.AddDays(index),
+                  TemperatureC = Random.Shared.Next(-20, 55),
+                  Summary = summaries[Random.Shared.Next(summaries.Length)]
+                })
+                .ToArray();
+              });
+              ```
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <h2 class="r-fit-text">How to:</h2>
+          <h2 class="r-fit-text">From Controllers</h2>
+          <h2 class="r-fit-text">To <a href="#">Endpoints</a></h2>
+          </script>
+        </section>
+
+        <section>
+          <section>
+            <h2>Routing</h2>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Routing**
+
+              ```csharp[0]
+              [HttpGet("beers")]
+              public IActionResult List() { /* ... */ }
+              [HttpGet("beers/{id}")]
+              public IActionResult Get(int id) { /* ... */ }
+              ```
+
+              vs.
+              ```csharp[0]
+              app.MapGet("/beers", () => { /* ... */ });
+              app.MapGet("/beers/{id}", (int id) => { /* ... */ });
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Verbs**
+
+              ```csharp[0]
+              [HttpGet("beers")]
+              public IActionResult List() { /* ... */ }
+              [HttpPost("beers")]
+              public IActionResult Create() { /* ... */ }
+              [HttpPut("beers/{id}")]
+              public IActionResult Replace(int id) { /* ... */ }
+              [HttpPatch("beers/{id}")]
+              public IActionResult Modify(int id) { /* ... */ }
+              [HttpDelete("beers/{id}")]
+              public IActionResult Delete(int id) { /* ... */ }
+              ```
+
+              vs.
+              ```csharp[0]
+              app.MapGet("/beers", () => { /* ... */ });
+              app.MapPost("/beers", () => { /* ... */ });
+              app.MapPut("/beers/{id}", (int id) => { /* ... */ });
+              app.MapPatch("/beers/{id}", (int id) => { /* ... */ });
+              app.MapDelete("/beers/{id}", (int id) => { /* ... */ });
+              ```
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Bindings</h2>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Binding**
+
+              ```csharp[0]
+              [HttpPut("beers/{id}")]
+              public IActionResult Put(int id, [FromBody] BeerRequest value) { /* ... */ }
+              ```
+
+              vs.
+              ```csharp[0]
+              app.MapPut("/beers/{id}", (int id, BeerRequest value) => { /* ... */ });
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Attributes**
+
+              ```csharp[0|4]
+              [HttpPut("beers/{id}")]
+              public IActionResult Put(
+                int id,
+                [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] BeerRequest value)
+              {
+                /* ... */
+              }
+              ```
+
+              vs.
+              ```csharp[0|3]
+              app.MapPut("/beers/{id}",
+                (int id,
+                [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] BeerRequest value)
+              =>
+              {
+                /* ... */
+              });
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Optionals**
+
+              ```csharp[0]
+              [HttpGet("breweries/{id}/beers")]
+              public IActionResult List(int id, int page = 1, int pageSize = 10)
+              {
+                /* ... */
+              }
+              ```
+
+              vs.
+              ```csharp[0]
+              app.MapPut("breweries/{id}/beers",(int id, int? page, int? pageSize) =>
+              {
+                if (!page.HasValue) page = 1;
+                if (!pageSize.HasValue) pageSize = 10;
+                /* ... */
+              });
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Optionals**
+
+              ```csharp[0]
+              app.MapGet("breweries/{id}/beers", GetBeersInBrewery);
+
+              static IResult GetBeersInBrewery(int id, int page = 1, int pageSize = 10)
+              {
+                /* ... */
+              }
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Dependency Injection**
+
+              ```csharp[0]
+              public class BeersController : Controller
+              {
+                private readonly BeerDbContext _db;
+                public BeersController(BeerDbContext db)
+                {
+                  _db = db;
+                }
+
+                [HttpGet("beers/{id}")]
+                public IActionResult Get(int id)
+                {
+                  /* ... */
+                }
+              }
+              ```
+
+              vs.
+              ```csharp[0]
+              app.MapPut("beers/{id}/beers",(int id, BeerDbContext db) =>
+              {
+                /* ... */
+              });
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Constants**
+
+              ```csharp[0]
+              app.MapGet("/hello", (ClaimsPrincipal user) => {
+                return "Hello " + user.FindFirstValue("sub");
+              });
+              ```
+
+              - `HttpContext`
+              - `HttpRequest`
+              - `HttpResponse`
+              - `ClaimsPrincipal` *(User)*
+              - `CancellationToken` *(RequestAborted)*
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Custom Bindings</h2>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **TryParse**
+
+              ```csharp[0|1,7-9]
+              app.MapGet("/point", (Point point) => $"Point: {point}");
+
+              record Point(double X, double Y) // Format is "12.3,10.1"
+              {
+                public override string ToString() => $"{X},{Y}";
+
+                public static bool TryParse(
+                        string? value,
+                        out Point point)
+                {
+                  var segments = value?.Split(',');
+                  if (segments?.Length == 2
+                      && double.TryParse(segments[0], out var x)
+                      && double.TryParse(segments[1], out var y))
+                  {
+                    point = new Point(x, y);
+                    return true;
+                  }
+
+                  point = new Point(0, 0);
+                  return false;
+                }
+              }
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **BindAsync**
+
+              ```csharp[0|1, 5-7]
+              app.MapGet("/search", (SearchParams? search) => search); // Echo the response back for demo purposes
+
+              record SearchParams(string? Term, int Page, int PageSize)
+              {
+                public static ValueTask<SearchParams> BindAsync(
+                        HttpContext httpContext,
+                        ParameterInfo parameter)
+                {
+                  int.TryParse(httpContext.Request.Query["page"], out var page);
+                  int.TryParse(httpContext.Request.Query["pagesize"], out var pageSize);
+
+                  return ValueTask.FromResult<SearchParams>(
+                    new SearchParams(
+                      httpContext.Request.Query["term"],
+                      page == 0 ? 1 : page,
+                      pageSize == 0 ? 10 : pageSize
+                    )
+                  );
+                }
+              }
+              ```
+            </script>
+          </section>
+
+          <section data-markdown data-auto-animate>
+            <script type="text/template">
+              **AsParameters**
+
+              ```csharp[0]
+              app.MapGet("/search", ([AsParameters] SearchParams search) => search);
+
+              record struct SearchParams(string? Term, int Page, int PageSize);
+              ```
+            </script>
+          </section>
+
+          <section data-markdown data-auto-animate>
+            <script type="text/template">
+              **AsParameters**
+
+              ```csharp[0 | 4,8]
+              app.MapGet("/search", ([AsParameters] SearchParams search) => search);
+
+              record struct SearchParams(
+                BeerDbContext db,
+                string? Term,
+                int Page,
+                int PageSize,
+                CancellationToken cancellationToken);
+              ```
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Results</h2>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **IResult**
+
+              ```csharp[0 ]
+              app.MapGet("/beers/{id}", GetBeerById);
+
+              async Task<IResult> GetBeerById(int id, BeerDbContext db)
+              {
+                return await db.Beers.FindAsync(id)
+                  is Beer beer
+                    ? Results.Ok(beer)
+                    : Results.NotFound();
+              };
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Multi Result**
+
+              ```csharp[0 ]
+              app.MapGet("/beers/{id}", GetBeerById);
+
+              async Task<Results<Ok<Beer>, NotFound>> GetBeerById(int id, BeerDbContext db)
+              {
+                return await db.Beers.FindAsync(id)
+                  is Beer beer
+                    ? TypedResults.Ok(beer)
+                    : TypedResults.NotFound();
+              };
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Annotate**
+
+              ```csharp[0 ]
+              app.MapGet("/beers/{id}", GetBeerById)
+                .Produces<Beer>(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status404NotFound);
+
+              async Task<IResult> GetBeerById(int id, BeerDbContext db)
+              {
+                return await db.Beers.FindAsync(id)
+                  is Beer beer
+                    ? Results.Ok(beer)
+                    : Results.NotFound();
+              };
+              ```
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Open API</h2>
+          </section>
+
+          <section data-markdown data-auto-animate>
+            <script type="text/template">
+              **Annotations**
+
+              ```csharp[0]
+              [HttpGet("beers/{id}", Name = "GetBeerById")]
+              [ProducesResponseType(typeof(BeerDetail), StatusCodes.Status200OK)]
+              [Tags("Beers")]
+              [Description("Gets a beer by id")]
+              public async Task<IActionResult> GetAsync(int id)
+              ```
+              vs
+              ```csharp[0]
+              app.MapGet("/beers/{id}", GetBeerById)
+                .Produces<Beer>(StatusCodes.Status200OK)
+                .WithName("GetBeerById")
+                .WithTags("beer")
+                .WithDescription("Gets a beer by id")
+                .WithSummary("Gets a beer by id")
+                .WithDisplayName("GetBeerById");
+              ```
+            </script>
+          </section>
+
+          <section data-markdown data-auto-animate>
+            <script type="text/template">
+              **Annotations**
+
+              ```csharp[0]
+              app.MapGet("/beers/{id}", GetBeerById)
+                .WithName("GetBeerById")
+
+              app.MapPost("/beers",  () => {
+                /* ... */
+                return Results.CreatedAtRoute("GetBeerById", new { id = beer.Id }, beer);
+              });
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **WithOpenApi**
+
+              ```csharp[0]
+              app.MapPut("/beers/{id}", async (int id, BeerRequest beer, BeersDbContext db) =>
+              {
+                /* ... */
+              })
+              .WithOpenApi(generatedOperation =>
+              {
+                var parameter = generatedOperation.Parameters[0];
+                parameter.Description = "The ID associated with the Beer to update or create";
+                return generatedOperation;
+              });
+              ```
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Validation</h2>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Validation**
+
+              ```csharp[0]
+              public class BeerRequest
+              {
+                  [Required, StringLength(100, MinimumLength = 3)]
+                  public string Name { get; set; }
+              }
+              public IActionResult Post([FromBody] BeerRequest value)
+              {
+                  if (!ModelState.IsValid) return BadRequest(ModelState);
+                  /* ... */
+              }
+              ```
+
+              vs.
+              ```csharp[0]
+              app.MapPost("/beers", (BeerRequest request) => {
+                if (request.Name is null || request.Name.Length < 3 || request.Name.Length > 100)
+                {
+                  return Results.BadRequest(new ValidationProblemDetails
+                  {
+                    Errors = { { "Name", new[] { "Name is required and must be between 3 and 100 characters" } } }
+                  });
+                }
+                /* ... */
+              });
+              ```
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Filters</h2>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Filters**
+
+              ```csharp[0]
+              app.MapPost("/beers", (BeerRequest request) => { /* ... */ })
+                .AddEndpointFilter(async (efiContext, next) =>
+                {
+                    app.Logger.LogInformation("Before filter");
+                    var result = await next(efiContext);
+                    app.Logger.LogInformation("After filter");
+                    return result;
+                })
+              ```
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Example**
+
+              ```csharp[0]
+              app.MapPost("/beers", (BeerRequest request) => { /* ... */ })
+                .AddEndpointFilter((context, next) =>
+                {
+                    var tdparam = context.GetArgument<BeerRequest>(0);
+                    var validationError = Utilities.IsValid(tdparam);
+                    if (!string.IsNullOrEmpty(validationError))
+                    {
+                        return Results.BadRequest(validationError);
+                    }
+
+                    return next(context);
+                });
+              ```
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Grouping</h2>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+              **Route Groups**
+
+              ```csharp[0]
+              app.MapGroup("/public/beers").MapBeersApi();
+              app.MapGroup("/private/beers").MapBeersApi().RequireAuthorization();
+
+              public static class BeersApi
+              {
+                public static RouteGroupBuilder MapBeersApi(this RouteGroupBuilder group)
+                {
+                    group.MapGet("/", GetAllBeers);
+                    group.MapGet("/{id}", GetBeer);
+                    group.MapPost("/", CreateBeer);
+                    group.MapPut("/{id}", UpdateBeer);
+                    return group;
+                }
+                /* ... */
+              }
+              ```
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <h2 class="r-fit-text">Demo</h2>
+        </section>
+
+        <section>
+          <section>
+            <h2 class="r-fit-text">Benchmarks</h2>
+          </section>
+
+          <section>
+            <img src="images/benchmarks.png" />
+          </section>
+        </section>
+
+        <section>
+          <img src="images/netcoreconf_template_2022.png" alt="sponsors">
+        </section>
+
+        <section>
+          <h2>THANK YOU</h2>
+          <p>More information:</p>
+          <div class='multiCol'>
+            <div class='col' style="text-align: center">
+              <img src="images/netcoreconf2022.png"  alt="netcoreconf2022" width="20%">
+              <a href="mailto:info@netcoreconf.com">info@netcoreconf.com</a><br/>
+              <a href="twitter.com/netcoreconf">@Netcoreconf</a><br/>
+              <a href="https://www.netcoreconf.com">netcoreconf.com</a>
+            </div>
+            <div class='col' style="text-align: center">
+              <img src="images/fernandoescolar.png" style="border-radius: 50%;" alt="Fernando Escolar" width="25%">
+              <a href="mailto:fer.escolar@gmail.com">fer.escolar@gmail.com</a><br/>
+              <a href="twitter.com/fernandoescolar">@fernandoescolar</a><br/>
+              <a href="https://www.developerro.com">developerro.com</a>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="dist/reveal.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/search/search.js"></script>
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="dist/mermaid.min.js"></script>
+    <script>
+      Reveal.configure({
+          keyboard: {
+              39: 'next',
+              37: 'prev'
+          }
+      });
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        center: true,
+        hash: true,
+        plugins: [ RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight ]
+      }).then( () => {
+        renderMermaidSlides();
+      });
+
+      Reveal.on( 'slidechanged', event => {
+        renderMermaidSlides();
+      });
+
+      function mermaidSlidesReadyToRender(s){
+        var diagram = s.querySelector(".mermaid")
+        if(diagram){
+          background = s.slideBackgroundElement;
+
+          if(!diagram.hasAttribute("data-processed") &&
+            background.hasAttribute("data-loaded") &&
+            background.style.display === "block"
+          )
+            return s;
+        }
+        return null;
+      }
+
+      function renderMermaidSlides(){
+        dSlides = Reveal.getSlides().filter(mermaidSlidesReadyToRender)
+        dSlides.forEach(item => mermaid.init(item.querySelector(".mermaid")));
+      }
+
+      mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+
+    </script>
+
+  </body>
+</html>
