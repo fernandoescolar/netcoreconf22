@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.0-preview.7.22376.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\lib\Example.Library.Endpoints\Example.Library.Endpoints.csproj" />
+    <ProjectReference Include="..\..\lib\Example.Library.Validation\Example.Library.Validation.csproj" />
+    <ProjectReference Include="..\..\lib\Example.Library.HashedIds\Example.Library.HashedIds.csproj" />
+    <ProjectReference Include="..\..\lib\Example.Library.Hypermedia\Example.Library.Hypermedia.csproj" />
+    <ProjectReference Include="..\..\lib\Example.Library.OperationCanceled\Example.Library.OperationCanceled.csproj" />
+    <ProjectReference Include="..\..\lib\Example.Library.DependencyInjection\Example.Library.DependencyInjection.csproj" />
+    <ProjectReference Include="..\Example.Data\Example.Data.csproj" />
+  </ItemGroup>
+</Project>
