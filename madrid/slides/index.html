@@ -111,7 +111,7 @@
             <h2 class="r-fit-text">How To:</h2>
             <h2 class="r-fit-text"><a href="#">Performance</a> testing</h2>
           </section>
-          
+
           <section>
             <h2><a href="#">Pros</a> and Cons</h2>
           <div class="container">
@@ -170,7 +170,17 @@
               **code**
 
               ```csharp[0]
-              // throw too many exceptions
+              var brewery = await req.Database.Breweries.FindAsync(new object[] { (int)req.Body.BreweryId }, cancellationToken);
+              if (brewery is null)
+              {
+                  throw new Exception("Unkown Brewery");
+              }
+
+              var style = await req.Database.Styles.FindAsync(new object[] { (int)req.Body.StyleId }, cancellationToken);
+              if (style is null)
+              {
+                  throw new Exception("Invalid beer style");
+              }
               ```
             </script>
           </section>
@@ -186,7 +196,17 @@
               **solution**
 
               ```csharp[0]
-              // throw too many exceptions
+              var brewery = await req.Database.Breweries.FindAsync(new object[] { (int)req.Body.BreweryId }, cancellationToken);
+              if (brewery is null)
+              {
+                  return Results.BadRequest("Unkown Brewery");
+              }
+
+              var style = await req.Database.Styles.FindAsync(new object[] { (int)req.Body.StyleId }, cancellationToken);
+              if (style is null)
+              {
+                  return Results.BadRequest("Invalid beer style");
+              }
               ```
             </script>
           </section>
@@ -202,7 +222,18 @@
               **code**
 
               ```csharp[0]
-              // use caches
+              private void FillBeerStyles(BeerDbContext database, Response resourceList)
+              {
+                  foreach (var item in resourceList.Items)
+                  {
+                      var style = database.Styles.FirstOrDefault(s => s.Id == item.StyleId);
+                      if (style != null)
+                      {
+                          item.StyleId = style.Id;
+                          item.StyleName = style.Name;
+                      }
+                  }
+              }
               ```
             </script>
           </section>
@@ -218,7 +249,19 @@
               **solution**
 
               ```csharp[0]
-              // use caches
+              private void FillBeerStyles(BeerDbContext database, Response resourceList, IMemoryCache cache)
+              {
+                  var styles = cache.GetOrSetAsync("styles", () => database.Styles.AsNoTracking().ToListAsync())
+                  foreach (var item in resourceList.Items)
+                  {
+                      var style = styles.FirstOrDefault(s => s.Id == item.StyleId);
+                      if (style != null)
+                      {
+                          item.StyleId = style.Id;
+                          item.StyleName = style.Name;
+                      }
+                  }
+              }
               ```
             </script>
           </section>
@@ -234,7 +277,23 @@
               **code**
 
               ```csharp[0]
-              // CancellationToken
+              protected override async Task<IResult> OnHandleAsync(Request req, CancellationToken cancellationToken)
+              {
+                  await LongCallAsync();
+
+                  var total = await req.Database.Styles.CountAsync();
+                  if (total == 0)
+                  {
+                      return Results.NoContent();
+                  }
+
+                  // ...
+              }
+
+              private Task LongCallAsync(CancellationToken cancellationToken = default)
+              {
+                // ..
+              }
               ```
             </script>
           </section>
@@ -250,7 +309,24 @@
               **solution**
 
               ```csharp[0]
-              // CancellationToken
+              protected override async Task<IResult> OnHandleAsync(Request req, CancellationToken cancellationToken)
+              {
+                  cancellationToken.ThrowIfCancellationRequested();
+                  await LongCallAsync(cancellationToken);
+
+                  var total = await req.Database.Styles.CountAsync(cancellationToken);
+                  if (total == 0)
+                  {
+                      return Results.NoContent();
+                  }
+
+                  // ...
+                }
+
+                private Task LongCallAsync(CancellationToken cancellationToken)
+                {
+                  // ..
+                }
               ```
             </script>
           </section>
@@ -266,7 +342,8 @@
               **code**
 
               ```csharp[0]
-              // HttpClient
+              var client = new HttpClient();
+              client.BaseAddress = new Uri("https://mybeers.azurewebsites.net");
               ```
             </script>
           </section>
@@ -282,7 +359,8 @@
               **solution**
 
               ```csharp[0]
-              // HttpClient
+              var client = req.HttpClientFactory.CreateClient();
+              client.BaseAddress = new Uri("https://mybeers.azurewebsites.net");
               ```
             </script>
           </section>
@@ -298,7 +376,9 @@
               **code**
 
               ```csharp[0]
-              // too many logs
+              logger.LogInformation("Method Start: GetBrewery");
+              var result = await next(context);
+              logger.LogInformation("Method End: GetBrewery");
               ```
             </script>
           </section>
@@ -314,7 +394,7 @@
               **solution**
 
               ```csharp[0]
-              // too many logs
+              // you should not
               ```
             </script>
           </section>
@@ -330,7 +410,16 @@
               **code**
 
               ```csharp[0]
-              // StringBuilder
+              var beers = await req.Database.Beers.Where(b => b.Brewery.Id == brewery.Id).ToListAsync(cancellationToken);
+              var description = string.Empty;
+              description += "Brewery: " + brewery.Name + Environment.NewLine;
+              description += "City: " + brewery.City + Environment.NewLine;
+              description += "Country: " + brewery.Country + Environment.NewLine;
+              description += "Beers: " + Environment.NewLine;
+              foreach(var beer in beers)
+              {
+                  description += "\t" + beer.Name + Environment.NewLine;
+              }
               ```
             </script>
           </section>
@@ -346,7 +435,19 @@
               **solution**
 
               ```csharp[0]
-              // StringBuilder
+              var sb = new System.Text.StringBuilder();
+              sb.Append("Brewery: ");
+              sb.AppendLine(brewery.Name);
+              sb.Append("City: ");
+              sb.AppendLine(brewery.City);
+              sb.Append("Country: ");
+              sb.AppendLine(brewery.Country);
+              sb.AppendLine("Beers:");
+              foreach(var beer in beers)
+              {
+                  sb.Append("\t");
+                  sb.AppendLine(beer.Name);
+              }
               ```
             </script>
           </section>

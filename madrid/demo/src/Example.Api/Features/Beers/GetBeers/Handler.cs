@@ -59,4 +59,18 @@ public record Handler() : GetEndpoint<Request>("/beers")
             }
         }
     }
+
+    // private void FillBeerStyles(BeerDbContext database, Response resourceList, IMemoryCache cache)
+    // {
+    //     var styles = cache.GetOrSetAsync("styles", () => database.Styles.AsNoTracking().ToListAsync())
+    //     foreach (var item in resourceList.Items)
+    //     {
+    //         var style = styles.FirstOrDefault(s => s.Id == item.StyleId);
+    //         if (style != null)
+    //         {
+    //             item.StyleId = style.Id;
+    //             item.StyleName = style.Name;
+    //         }
+    //     }
+    // }
 }
